@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyTube</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body onload="init()">
+    <header>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search...">
+            <button onclick="searchVideos()">Search</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="video-container" id="videoContainer"></div>
+        <button class="load-more" id="loadMore" onclick="loadMore()">Load More</button>
+        
+        <div class="player-wrapper">
+            <iframe class="iframe" width="100%" height="500" 
+                frameborder="0" allowfullscreen style="display:none;"></iframe>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <script>
+        function init() {
+            let params = new URLSearchParams(window.location.search.substr(1));
+            if(params.has('v')) {
+                purify(params.get('v').match(/(http:|https:)?(\/\/)?(www\.)?(youtube.com|youtu.be)\/(watch|embed)?(\?v=|\/)?(\S+)?/).pop());
+            }
+        }
+
+        function purify(key) {
+            document.querySelector('.iframe').style.display = '';
+            document.querySelector('iframe').setAttribute('src', 
+                `https://www.youtube-nocookie.com/embed/${key}?autoplay=1`);
+        }
+    </script>
+</body>
+</html>
