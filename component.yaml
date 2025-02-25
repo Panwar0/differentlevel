@@ -1,0 +1,53 @@
+component:
+  name: studytube
+  type: web
+  language: python
+  buildCommand: pip install -r requirements.txt
+  runCommand: python app.py
+  port: 8080
+  env:
+    - name: PORT
+      value: "8080"
+    - name: FLASK_ENV
+      value: "production"
+  resources:
+    cpu: 0.5
+    memory: 512Mi
+  scaling:
+    minReplicas: 1
+    maxReplicas: 3
+  probes:
+    liveness:
+      httpGet:
+        path: /
+        port: 8080
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readiness:
+      httpGet:
+        path: /
+        port: 8080
+      initialDelaySeconds: 20
+      periodSeconds: 5
+  autoscaling:
+    targetCPUUtilizationPercentage: 80
+  ingress:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: studytube.choreo.dev
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - studytube.choreo.dev
+        secretName: studytube-tls
+  volumes:
+    - name: static-files
+      mountPath: /app/static
+      emptyDir: {}
+  serviceAccount:
+    create: true
+    annotations: {}
