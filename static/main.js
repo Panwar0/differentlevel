@@ -51,3 +51,44 @@ function addMoreVideos(videos) {
         container.appendChild(card);
     });
 }
+// Show loading state
+function showLoader() {
+    document.getElementById('loader').style.display = 'block';
+    document.getElementById('errorMessage').style.display = 'none';
+}
+
+// Hide loading state
+function hideLoader() {
+    document.getElementById('loader').style.display = 'none';
+}
+
+// Show error message
+function showError() {
+    document.getElementById('errorMessage').style.display = 'block';
+}
+
+// Update search function
+async function searchVideos() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) return;
+
+    showLoader();
+    currentQuery = query;
+    currentPage = 1;
+
+    try {
+        const response = await fetch(`/search?q=${encodeURIComponent(currentQuery)}&page=${currentPage}`);
+        if (!response.ok) throw new Error('Network error');
+        
+        const data = await response.json();
+        if (data.error) throw new Error(data.error);
+        
+        displayVideos(data.videos);
+        document.getElementById('loadMore').style.display = 'block';
+    } catch (error) {
+        showError();
+        console.error('Search error:', error);
+    } finally {
+        hideLoader();
+    }
+}
